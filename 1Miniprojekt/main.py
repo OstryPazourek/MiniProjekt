@@ -11,6 +11,7 @@ temps = [
     {"id": 4, "timestamp": "12:03", "temp": 26},
     {"id": 5, "timestamp": "12:04", "temp": 25},
 ]
+
 Gpocet_vypis=2
 
 @app.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
