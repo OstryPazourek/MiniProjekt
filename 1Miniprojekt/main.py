@@ -46,7 +46,7 @@ else:
 for i in range(numRecords):
     timestamp = startTime + timedelta(seconds=i*period)
     temperature = random.uniform(minTemp, maxTemp)
-    insertQuery = f"INSERT INTO {tableName} (timestamp, temperature) VALUES (?, ?)"
+    insertQuery = f"INSERT INTO {tableName} (timestamp, temp) VALUES (?, ?)"
     cursor.execute(insertQuery, (timestamp.strftime('%Y-%m-%d %H:%M:%S'), temperature))
  
 conn.commit()
@@ -84,16 +84,19 @@ def getTemps( json_str = False ):
 
 
 temps = getTemps(json_str = True )
-'''''
+print(temps)
+'''
 temps = [
-    {"id": 1, "timestamp": "12:00", "temp": 25},
-    {"id": 2, "timestamp": "12:01", "temp": 24},
+    {'id': 1, 'timestamp': '12:00', 'temp': 25},
+    {'id': 2, 'timestamp': '12:01', 'temp': 24},
     {"id": 3, "timestamp": "12:02", "temp": 23},
     {"id": 4, "timestamp": "12:03", "temp": 26},
-    {"id": 5, "timestamp": "12:04", "temp": 25},
+    {"id": 5, "timestamp": "2024-03-17 03:15:00", "temp": 27.653068415058094},
 ]
-'''''
+
 print(temps)
+'''
+
 Gpocet_vypis=2
 
 @app.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
