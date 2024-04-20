@@ -8,49 +8,6 @@ import os
 import json
  
 
- 
-numRecords = 10
-dbFile = os.path.join(os.getcwd(), 'database.db')
-tableName = 'data'
-minTemp = 20.0
-maxTemp = 30.0
-startDate = '2024-03-17 00:00:00'
-period = 300
- 
- 
-conn = sqlite3.connect(dbFile)
-cursor = conn.cursor()
- 
-createQuery = f"""
-CREATE TABLE IF NOT EXISTS {tableName} (
-    id INTEGER PRIMARY KEY,
-    timestamp TEXT NOT NULL,
-    temp REAL NOT NULL
-);
-"""
-cursor.execute(createQuery)
- 
-countQuery = f"SELECT COUNT(*) FROM {tableName}"
-cursor.execute(countQuery)
-count = cursor.fetchone()[0]
- 
-if count == 0:
-    startTime = datetime.strptime(startDate, '%Y-%m-%d %H:%M:%S')
-else:
-    maxTimestampQuery = f"SELECT MAX(timestamp) FROM {tableName}"
-    cursor.execute(maxTimestampQuery)
-    maxTimestamp = cursor.fetchone()[0]
-    maxTimestampDatetime = datetime.strptime(maxTimestamp, '%Y-%m-%d %H:%M:%S')
-    startTime = maxTimestampDatetime + timedelta(seconds=period)
- 
-for i in range(numRecords):
-    timestamp = startTime + timedelta(seconds=i*period)
-    temperature = random.uniform(minTemp, maxTemp)
-    insertQuery = f"INSERT INTO {tableName} (timestamp, temp) VALUES (?, ?)"
-    cursor.execute(insertQuery, (timestamp.strftime('%Y-%m-%d %H:%M:%S'), temperature))
- 
-conn.commit()
-conn.close()
 
 '''''
 connection = sqlite3.connect("database.db")
@@ -65,6 +22,14 @@ def getTemps(connection):
     cursor = connection.cursor()
     cursor.execute()
 '''''
+def deleteTemps(mazani):
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+    cur.execute(f"Delete from data WHERE id IN (SELECT id FROM data limit '{mazani}')")
+    conn.commit()
+    cur.close()
+    return 0
+
 def getTemps( json_str = False ):
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row # This enables column access by name: row['column_name'] 
@@ -78,14 +43,15 @@ def getTemps( json_str = False ):
     conn.close()
 
     if json_str:
-        return json.dumps( [dict(ix) for ix in rows] ) #CREATE JSON
+        return json.loads(json.dumps( [dict(ix) for ix in rows] )) #CREATE JSON
 
     return rows
 
 
-temps = getTemps(json_str = True )
-print(temps)
+#temps = getTemps(json_str = True )
 
+#print(temps)
+'''
 temps = [
     {'id': 1, 'timestamp': '12:00', 'temp': 25},
     {'id': 2, 'timestamp': '12:01', 'temp': 24},
@@ -95,8 +61,8 @@ temps = [
 ]
 
 print(temps)
-
-
+'''
+global temps
 Gpocet_vypis=2
 
 @app.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
@@ -120,12 +86,17 @@ def get2_temp():
 def delete_temp(mazani):
     global temps
    # temps = temps[(mazani):]
-    del temps [0:mazani]
+    
+    deleteTemps(mazani)
+    #temps = getTemps(json_str = True )
+    #del temps [0:mazani]
     return jsonify(mazani), 200
    
 @app.route('/')  # View function for endpoint '/'  
 def helloNSI(name="Anonymous"):   
     global Gpocet_vypis
+    global temps
+    temps = getTemps(json_str = True )
     if Gpocet_vypis > len(temps):
         Gpocet_vypis = len(temps)
     return render_template("base.html",name=name, temps=temps[(len(temps)-Gpocet_vypis):], temp1=temps[-1])  
