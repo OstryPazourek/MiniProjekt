@@ -85,7 +85,7 @@ def getTemps( json_str = False ):
 
 temps = getTemps(json_str = True )
 print(temps)
-'''
+
 temps = [
     {'id': 1, 'timestamp': '12:00', 'temp': 25},
     {'id': 2, 'timestamp': '12:01', 'temp': 24},
@@ -95,7 +95,7 @@ temps = [
 ]
 
 print(temps)
-'''
+
 
 Gpocet_vypis=2
 
