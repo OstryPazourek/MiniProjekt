@@ -56,7 +56,6 @@ def getTemps( json_str = False ):
 
     if json_str:
         return json.loads(json.dumps( [dict(ix) for ix in rows] )) #CREATE JSON
-
     return rows
 
 def getUsers( json_str = False ):
@@ -73,22 +72,16 @@ def getUsers( json_str = False ):
 
     if json_str:
         return json.loads(json.dumps( [dict(ix) for ix in rows] )) #CREATE JSON
-
     return rows
 # codování ze stránky https://stackoverflow.com/questions/73532164/proper-data-encryption-with-a-user-set-password-in-python3
 def addUsers( name, password ):
-    
-    
     cipher_text = ""
     for letter in password:
         index = chars.index(letter)
         cipher_text += key[index]
-
     #encrypted = encrypted.decode("utf-8")
     conn = sqlite3.connect("database.db")
-   
     db = conn.cursor()
-
     db.execute(f'''
     INSERT INTO users(name, password) VALUES ('{name}', '{cipher_text}');
     ''').fetchall() 
@@ -97,9 +90,6 @@ def addUsers( name, password ):
     conn.close()
 
     return 0
-#temps = getTemps(json_str = True )
-
-#print(temps)
 '''
 temps = [
     {'id': 1, 'timestamp': '12:00', 'temp': 25},
@@ -108,22 +98,15 @@ temps = [
     {"id": 4, "timestamp": "12:03", "temp": 26},
     {"id": 5, "timestamp": "2024-03-17 03:15:00", "temp": 27.653068415058094},
 ]
-
 print(temps)
-
 users = [
     {'id': 1, 'name': 'admin', 'password': 'admin'},
     {'id': 2, 'name': 'user', 'password': 'user'},  
 ]
 '''
-
-
-
-
 global temps
 name = "Anonymous"
 Gpocet_vypis=2
-
 
 @app.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
 def post_temp(pocet_vypis):
@@ -216,9 +199,6 @@ def logout():
     name = "Anonymous"
     return redirect(url_for("home"))
 
-    
-
-
 @app.route('/register', methods =['GET', 'POST'])
 def register():
     msg = ''
@@ -244,9 +224,3 @@ def register():
 # Starting a web application at 0.0.0.0.0:5000 with debug mode enabled  
 if __name__ == "__main__":  
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
-
-
-
-
-
-
