@@ -20,15 +20,17 @@
   {% block privitani%}
   Měření teploty <br>
   Vitej uživateli:  <h1 id="hello-world"> {{name}} </h1>   <script src="/static/script.js"></script>  <br>  
-  <button class="btn btn-danger delete-task"   >Odhlásit se</button>
+  
+  <p class="bottom"><a class="btn btn-danger delete-task" href="{{url_for('logout')}}"> Odhlásit se</a></p>
+ 
 
   {% endblock%}
-<nav class="navbar bg-body-tertiary">  
+<nav class="navbar bg-body-tertiary"> 
   <div class="container-fluid">  
-    <a class="navbar-brand" href="/login"><h1 id="hello-world">Login</h1></a>  
-  </div>
+    <a class="navbar-brand" href="/login"><h1 id="hello-world">Přihlášení</h1></a>  
+  </div> 
   <div class="container-fluid">  
-    <a class="navbar-brand" href="/register"><h1 id="hello-world">Register</h1></a>  
+    <a class="navbar-brand" href="/register"><h1 id="hello-world">Registrace</h1></a>
   </div>
   <div class="container-fluid">  
     <a class="navbar-brand" href="/"><h1 id="hello-world">Domů</h1></a>  
