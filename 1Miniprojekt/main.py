@@ -141,18 +141,20 @@ def home():
     global temps
     global name
     temps = getTemps(json_str = True )
-    delka = len(temps)
+    delka = len(temps)    
     if Gpocet_vypis > delka:
         Gpocet_vypis = delka
     poradi = -1    
     if delka<1:
+        temps = [{'id': 1, 'timestamp': '--', 'temp': 0}]
         poradi = 0
+        Gpocet_vypis=1
     return render_template("base.html",name=name, temps=temps[(delka-Gpocet_vypis):], temp1=temps[poradi])  
-
+'''
 @app.route('/<name>')  # View function for endpoint '/'  
 def helloNSI4(name=""):   
     return render_template("base.html",name=name, temps=temps[(len(temps)-Gpocet_vypis):], temp1=temps[-1])  
-'''
+
 @app.route('/login')  # View function for endpoint '/'  
 def helloNSI2():  
     return render_template("login.html") 
