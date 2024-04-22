@@ -15,12 +15,12 @@ Register
     <h2 class="word">
         <form action="{{ url_for('register') }}" method="post">
           <div class="msg">{{ msg }}</div>
-            <input id="username" name="username" type="text" placeholder="Uživatelské jeméno" class="textbox"/></br></br>
+            <input id="username" name="username" type="text" placeholder="Uživatelské jméno" class="textbox"/></br></br>
             <input id="password" name="password" type="password" placeholder="Heslo" class="textbox"/></br></br>
             <input type="submit" class="btn btn-primary" value="Zaregistrovat"></br>
         </form>
     </h2>
-    <p class="bottom">Už máte učet? <a class="bottom" href="{{url_for('login')}}"> Přihlaštš se zde</a></p>
+    <p class="bottom">Už máte učet? <a class="bottom" href="{{url_for('login')}}"> Přihlašte se zde</a></p>
   </div>
 </div>
 {% endblock %}
