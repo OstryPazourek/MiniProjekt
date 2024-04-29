@@ -1,6 +1,8 @@
 
 from flask import Flask,render_template,redirect, url_for, jsonify, request  # Importing the Flask module from the flask package  
+from blueprintAPI import simple_page
 app = Flask(__name__)  # Creating an instance of the Flask class  
+app.register_blueprint(simple_page)
 import sqlite3
 import json
 import re
@@ -10,6 +12,9 @@ import random
 #from cryptography.fernet import Fernet
 #import base64
 #from Crypto.Cipher import AES #pip3 install pycryptodome ukazka kodu https://stackoverflow.com/questions/15956952/how-do-i-decrypt-using-hashlib-in-python
+
+
+
 
 
 chars = " " + string.punctuation + string.digits + string.ascii_letters
@@ -90,6 +95,13 @@ def addUsers( name, password ):
     conn.close()
 
     return 0
+def get_Gpocet_vypis():
+    return Gpocet_vypis
+def put_Gpocet_vypis(pocet_vypis):
+    global Gpocet_vypis
+    Gpocet_vypis = pocet_vypis
+    return 0
+
 '''
 temps = [
     {'id': 1, 'timestamp': '12:00', 'temp': 25},
@@ -105,9 +117,10 @@ users = [
 ]
 '''
 global temps
+global name
 name = "Anonymous"
 Gpocet_vypis=2
-
+'''
 @app.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
 def post_temp(pocet_vypis):
     global Gpocet_vypis
@@ -127,14 +140,14 @@ def get2_temp():
 
 @app.route('/api/temp/<int:mazani>', methods=['DELETE'])
 def delete_temp(mazani):
-    global temps
+    
    # temps = temps[(mazani):]
     
     deleteTemps(mazani)
     #temps = getTemps(json_str = True )
     #del temps [0:mazani]
     return jsonify(mazani), 200
-   
+   '''
 @app.route('/')  # View function for endpoint '/'  
 def home():   
     global Gpocet_vypis
