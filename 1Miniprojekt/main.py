@@ -3,6 +3,7 @@ from flask import Flask,render_template,redirect, url_for, jsonify, request  # I
 from blueprintAPI import simple_page
 app = Flask(__name__)  # Creating an instance of the Flask class  
 app.register_blueprint(simple_page)
+from blueprintAPI import getName, getVypis, changeName, changeVypis
 import sqlite3
 import json
 import re
@@ -95,12 +96,14 @@ def addUsers( name, password ):
     conn.close()
 
     return 0
+'''
 def get_Gpocet_vypis():
     return Gpocet_vypis
 def put_Gpocet_vypis(pocet_vypis):
     global Gpocet_vypis
     Gpocet_vypis = pocet_vypis
     return 0
+'''
 
 '''
 temps = [
@@ -116,10 +119,7 @@ users = [
     {'id': 2, 'name': 'user', 'password': 'user'},  
 ]
 '''
-global temps
-global name
-name = "Anonymous"
-Gpocet_vypis=2
+
 '''
 @app.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
 def post_temp(pocet_vypis):
@@ -148,21 +148,32 @@ def delete_temp(mazani):
     #del temps [0:mazani]
     return jsonify(mazani), 200
    '''
+
+global temps
+Gpocet_vypis=2
+print(getName())
+name = getName()
+
+
 @app.route('/')  # View function for endpoint '/'  
 def home():   
     global Gpocet_vypis
+    Gpocet_vypis = getVypis()
     global temps
     global name
     temps = getTemps(json_str = True )
     delka = len(temps)    
     if Gpocet_vypis > delka:
-        Gpocet_vypis = delka
+        #Gpocet_vypis = delka
+        changeVypis(delka)
     poradi = -1    
     if delka<1:
         temps = [{'id': 1, 'timestamp': '--', 'temp': 0}]
         poradi = 0
-        Gpocet_vypis=1
-    return render_template("base.html",name=name, temps=temps[(delka-Gpocet_vypis):], temp1=temps[poradi])  
+        #Gpocet_vypis=1
+        changeVypis(1)
+    print(Gpocet_vypis)
+    return render_template("base.html",name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi])  
 '''
 @app.route('/<name>')  # View function for endpoint '/'  
 def helloNSI4(name=""):   
@@ -176,7 +187,10 @@ def helloNSI2():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     users = getUsers(json_str = True )
+    '''
     global name
+    name = getName()
+    '''
     global key
     error = None
     #uzivatel = 'admin'
@@ -202,7 +216,8 @@ def login():
                 plain_text += chars[index]
 
             if request.form['username'] == user['name'] and request.form['password'] == plain_text:
-                name = user['name']
+                #name = user['name']
+                changeName(user['name'])
                 return redirect(url_for('home'))               
             
         error = 'Chybné přihlašovací údaje. Zkuste to Znova.'
@@ -210,8 +225,9 @@ def login():
 
 @app.route("/logout/", methods = ["GET", "POST"])
 def logout():
-    global name
-    name = "Anonymous"
+    #global name
+    #name = "Anonymous"
+    changeName()
     return redirect(url_for("home"))
 
 @app.route('/register', methods =['GET', 'POST'])
@@ -231,6 +247,7 @@ def register():
         elif not username or not password:
             msg = 'Prosím vyplňte všechy položky!'
         else:
+            name = getName()
             addUsers( name = username, password = password )
             msg = 'Úspěšně jste se zaregistroval!'
     elif request.method == 'POST':

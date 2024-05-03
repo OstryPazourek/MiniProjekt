@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, abort, jsonify
 from jinja2 import TemplateNotFound
 import sqlite3
 import json
-from main import put_Gpocet_vypis
+#from main import put_Gpocet_vypis
 
 def deleteTemps(mazani):
     conn = sqlite3.connect("database.db")
@@ -12,6 +12,26 @@ def deleteTemps(mazani):
     cur.close()
     return 0
 
+def getName():
+    global name
+    return name
+
+def changeName(NewName="Anonymous"):
+    global name
+    name = NewName
+    return name
+
+def getVypis():
+    global Gpocet_vypis
+    return Gpocet_vypis
+
+def changeVypis(vypis=2):
+    global Gpocet_vypis
+    Gpocet_vypis = vypis
+    return Gpocet_vypis
+
+name = "Anonymous"
+Gpocet_vypis = 2
 
 
 simple_page = Blueprint('simple_page', __name__,
@@ -23,14 +43,17 @@ simple_page = Blueprint('simple_page', __name__,
 '''
 @simple_page.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
 def post_temp(pocet_vypis):
-    #put_Gpocet_vypis(pocet_vypis)
+    global Gpocet_vypis
+    Gpocet_vypis=pocet_vypis
    # Gpocet_vypis = pocet_vypis
+    print(Gpocet_vypis)
     return jsonify(Gpocet_vypis), 200
 
 @simple_page.route('/api/temp/<int:pocet_vypis>', methods=['GET'])
 def get_temp(pocet_vypis):
     global Gpocet_vypis
     Gpocet_vypis = pocet_vypis
+    print(Gpocet_vypis)
     return jsonify(Gpocet_vypis), 200
 
 @simple_page.route('/api/temp', methods=['GET'])
@@ -40,7 +63,7 @@ def get2_temp():
 
 @simple_page.route('/api/temp/<int:mazani>', methods=['DELETE'])
 def delete_temp(mazani):
-    global temps
+   
    # temps = temps[(mazani):]
     
     deleteTemps(mazani)
