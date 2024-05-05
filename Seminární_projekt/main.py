@@ -1,10 +1,12 @@
 
 from flask import Flask,render_template,redirect, url_for, jsonify, request  # Importing the Flask module from the flask package  
 from blueprintAPI import simple_page
+import os
 app = Flask(__name__)  # Creating an instance of the Flask class  
 app.register_blueprint(simple_page)
 app.config['RESTARTED'] = True 
-from blueprintAPI import getName, getVypis, changeName, changeVypis
+dbFile = os.path.join(os.getcwd(), 'databaseKur.db')
+from blueprintAPI import getName, getVypis, changeName, changeVypis, get_time_open, get_time_close, insert_timeclose, insert_timeopen
 import sqlite3
 import json
 import re
@@ -14,11 +16,43 @@ import json
 import threading
 from datetime import datetime
 import plotly.graph_objs as go
-from datetime import datetime
 import numpy as np
 import time
 import serial
+conn = sqlite3.connect(dbFile)
+cursor = conn.cursor()
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    password TEXT NOT NULL
+);
+""")
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS open (
+    id INTEGER PRIMARY KEY,
+    timeopen TEXT NOT NULL
+);
+""")
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS close (
+    id INTEGER PRIMARY KEY,
+    timeclose TEXT NOT NULL
+);
+""")
+#cursor.execute("INSERT INTO users (name, password) VALUES ('admin', 'admin')")
+
+
+
+createQuery = f"""
+CREATE TABLE IF NOT EXISTS data (
+    id INTEGER PRIMARY KEY,
+    timestamp TEXT NOT NULL,
+    temp REAL NOT NULL
+);
+"""
+cursor.execute(createQuery)
 def print_msg(client, userdata, message):
     
     MSG = json.loads(message.payload.decode("utf-8"))
@@ -95,6 +129,7 @@ Gpocet_vypis=2
 print(getName())
 name = getName()
 conectionDATA = "MQTT"
+
 
 
 @app.route('/')  # View function for endpoint '/'  
@@ -210,9 +245,6 @@ def register():
 def insert_temperature(temp, timestamp):
     conn = sqlite3.connect("databaseKur.db")  # Připojení k databázi
     cursor = conn.cursor()
-    # Vytvoření tabulky, pokud ještě neexistuje
-    #cursor.execute('''CREATE TABLE IF NOT EXISTS temperatures (id INTEGER PRIMARY KEY, temperature REAL, timestamp TEXT)''')
-    # Vložení nové teploty a času do tabulky
     cursor.execute('INSERT INTO data (timestamp, temp) VALUES (?, ?)', (timestamp, temp))
     conn.commit()  # Commit změn
     conn.close()  # Uzavření spojení s databází
