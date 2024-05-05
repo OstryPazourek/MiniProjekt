@@ -1,0 +1,227 @@
+<html lang="cs">  
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .button {
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 2px solid #ffffff;
+        }
+        .button:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+        .gray {
+            background-color: gray;
+        }
+        .green {
+            background-color: green;
+        }
+        .red {
+            background-color: red;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+    </style>
+    {% block obnova%}
+    <meta http-equiv="refresh" content="5">
+    {% endblock%}  
+    <title>{% block title%}Home{% endblock%}</title>  
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">  
+ 
+    <!-- BOOTSTRAP https://getbootstrap.com/ -->  
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" 
+        crossorigin="anonymous">  
+    <script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+        crossorigin="anonymous">
+    </script>  
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+     <title>Graf sinusove funkce</title>
+     <style>
+         html, body {
+             height: 100%;
+             margin: 0;
+             
+             justify-content: center;
+             align-items: center;
+         }
+         #graph {
+             width: 900px;
+             height: 800px;
+         }
+     </style>
+</head>  
+<body>  
+  {% block privitani%}
+  Měření teploty <br>
+  Vitej uživateli:  <h1 id="hello-world"> {{name}} </h1>   <script src="/static/script.js"></script>  <br>  
+  
+  <p class="bottom"><a class="btn btn-danger delete-task" href="{{url_for('logout')}}"> Odhlásit se</a></p>
+ 
+    <button id="button1" class="button gray" onclick="setColorsAndRedirect('button1', '/MQTT')">Data přijímat z MQTT</button>
+    <button id="button2" class="button gray" onclick="setColorsAndRedirect('button2', '/serial')">Data přijímat Seriově</button>
+  {% endblock%}
+<nav class="navbar bg-body-tertiary"> 
+  <div class="container-fluid">  
+    <a class="navbar-brand" href="/login"><h1 id="hello-world">Přihlášení</h1></a>  
+  </div> 
+  <div class="container-fluid">  
+    <a class="navbar-brand" href="/register"><h1 id="hello-world">Registrace</h1></a>
+  </div>
+  <div class="container-fluid">  
+    <a class="navbar-brand" href="/"><h1 id="hello-world">Domů</h1></a>  
+  </div>
+</nav>  
+{% block card%}
+<!-- POLEDNI HODNOTA -->  
+<div class="card mx-5 mt-2">
+  <div class="card-body">
+      <h5 class="card-title">Poslední teplota</h5>
+     
+      
+      <div class="card mb-2">
+          <div class="card-body" id="temp1-{{ temp1.id }}">
+              <h5 class="card-title">Teplota: {{ temp1.temp }}</h5>
+              <p class="card-text">Čas: {{ temp1.timestamp }}</p>
+              <!--<button class="btn btn-danger delete-temp1" data-temp1-id="{{ temp1.id }}">Smazat úkol</button> -->
+          </div>
+      </div>
+    
+  </div>
+</div>
+<div id="graph">
+  {{ graph_html|safe }}
+</div>
+<!-- VSECHNY HODNOTA --> 
+<div class="card mx-5 mt-2">
+  <div class="card-body">
+      <h5 class="card-title">Teploty</h5>
+    
+      {% for temp in temps|reverse %}
+      <div class="card mb-2">
+          <div class="card-body" id="temp-{{ temp.id }}">
+              <h5 class="card-title">Teplota: {{ temp.temp }}</h5>
+              <p class="card-text">Čas: {{ temp.timestamp }}</p>
+              <!--<button class="btn btn-danger delete-temp" data-temp-id="{{ temp.id }}">Smazat úkol</button> -->
+          </div>
+      </div>
+      {% endfor %}
+  </div>
+</div>
+
+<!-- tlacitko na pocet zobrazeni -->
+<div class="card mx-5 mt-2">
+  <div class="card-body">
+      <form id="add-pocet-vypis">
+          <div class="mb-3">
+              <input type="number" class="form-control" id="pocet_vypis" placeholder="Pocet zobrazeni">
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Načíst</button>
+      </form>
+  </div>
+</div>
+<!-- tlacitko na mazani -->
+<div class="card mx-5 mt-2">
+  <div class="card-body">
+      <form id="add-mazani">
+          <div class="mb-3">
+              <input type="number" class="form-control" id="mazani" placeholder="Smazání posledních hodnot">
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Smazat</button>
+      </form>
+  </div>
+</div>
+
+
+{% endblock%}
+<script>
+   $('#add-pocet-vypis').submit(function(event) {
+        event.preventDefault();
+        var pocet_vypis = $('#pocet_vypis').val();
+       
+        $.ajax({
+          url: '/api/temp/' + pocet_vypis,
+            type: 'POST',
+            success: function(response) {
+                $('#add-pocet-vypis')[0].reset();
+                location.reload();
+                
+            }
+        });
+    });
+    $('#add-mazani').submit(function(event) {
+        event.preventDefault();
+        var mazani = $('#mazani').val();
+       
+        $.ajax({
+          url: '/api/temp/' + mazani,
+            type: 'DELETE',
+            success: function(response) {
+                $('#add-mazani')[0].reset();
+                location.reload();
+                
+            }
+        });
+    });
+var reset = {{ reset|tojson }}; // Z Flasku dostaneme info o resetu
+
+function setColorsAndRedirect(clickedId, url) {
+    var button1 = document.getElementById('button1');
+    var button2 = document.getElementById('button2');
+
+    if (clickedId === 'button1') {
+        button1.className = 'button green disabled';
+        button2.className = 'button red disabled';
+    } else {
+        button1.className = 'button red disabled';
+        button2.className = 'button green disabled';
+    }
+
+    button1.disabled = true;
+    button2.disabled = true;
+
+    localStorage.setItem('buttonColors', JSON.stringify({
+        button1: button1.className,
+        button2: button2.className
+    }));
+
+    window.location.href = url;
+}
+
+function loadColors() {
+    if (!reset) {
+        var colors = localStorage.getItem('buttonColors');
+        if (colors) {
+            colors = JSON.parse(colors);
+            var button1 = document.getElementById('button1');
+            var button2 = document.getElementById('button2');
+            button1.className = colors.button1;
+            button2.className = colors.button2;
+
+            if (colors.button1.includes('disabled')) {
+                button1.disabled = true;
+                button2.disabled = true;
+            }
+        }
+    } else {
+        localStorage.clear();  // Vymažeme uložená data po restartu
+    }
+}
+
+window.onload = loadColors;
+
+</script>
+</body>  
+</html>

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title%}
+Login
+{% endblock %}
+{% block privitani%}
+{% endblock %}
+{% block logout%} 
+{% endblock %}
+{% block card%}
+{%block obnova%}
+{% endblock %}
+<div align="center">
+  <div align="center" class="border">
+     <div class="header">
+        <h1 class="word">Přihlašte se</h1>
+     </div></br></br></br>
+    <h2 class="word">
+        <form action="" method="post">
+          <input class="textbox" type="text" placeholder="Uživatelské jméno" name="username" value="{{request.form.username }}"></br></br>
+          <input class="textbox" type="password" placeholder="Heslo" name="password" value="{{request.form.password }}"></br></br>
+          <input class="btn btn-primary" type="submit" value="Přihlásit">
+        </form>
+    </h2>
+  <p class="bottom">Ještě nemáte účet?<a class="bottom" href="{{url_for('register')}}"> Registrujte se zde</a></p>
+  {% if error %}
+    <p class="error"><strong>Error:</strong> {{ error }}
+  {% endif %}
+</div>
+
+
+{% endblock %}
