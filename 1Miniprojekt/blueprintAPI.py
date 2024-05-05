@@ -30,6 +30,23 @@ def changeVypis(vypis=2):
     Gpocet_vypis = vypis
     return Gpocet_vypis
 
+def getTemps( json_str = False ):
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row # This enables column access by name: row['column_name'] 
+    db = conn.cursor()
+
+    rows = db.execute('''
+    SELECT * from data
+    ''').fetchall()
+
+    conn.commit()
+    conn.close()
+
+    if json_str:
+        return json.loads(json.dumps( [dict(ix) for ix in rows] )) #CREATE JSON
+    return rows
+
+
 name = "Anonymous"
 Gpocet_vypis = 2
 
@@ -41,6 +58,13 @@ simple_page = Blueprint('simple_page', __name__,
 @simple_page.route('/', defaults={'page': 'index'})
 @simple_page.route('/<page>')
 '''
+
+
+@simple_page.route('/api/temps', methods=['GET'])
+def get3_temp():
+    temps = getTemps(json_str = True )
+    return jsonify(temps), 200
+
 @simple_page.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
 def post_temp(pocet_vypis):
     global Gpocet_vypis

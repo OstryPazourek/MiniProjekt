@@ -1,5 +1,35 @@
 <html lang="cs">  
-<head>  
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .button {
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 2px solid #ffffff;
+        }
+        .button:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+}
+        .gray {
+            background-color: gray;
+        }
+        .green {
+            background-color: green;
+        }
+        .red {
+            background-color: red;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+    </style>
+    {% block obnova%}
+    <meta http-equiv="refresh" content="5">
+    {% endblock%}  
     <title>{% block title%}Home{% endblock%}</title>  
     <link rel="stylesheet" type="text/css" href="/static/styles.css">  
  
@@ -15,6 +45,21 @@
         crossorigin="anonymous">
     </script>  
      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+     <title>Graf sinusove funkce</title>
+     <style>
+         html, body {
+             height: 100%;
+             margin: 0;
+             
+             justify-content: center;
+             align-items: center;
+         }
+         #graph {
+             width: 900px;
+             height: 800px;
+         }
+     </style>
 </head>  
 <body>  
   {% block privitani%}
@@ -23,7 +68,8 @@
   
   <p class="bottom"><a class="btn btn-danger delete-task" href="{{url_for('logout')}}"> Odhlásit se</a></p>
  
-
+    <button id="button1" class="button gray" onclick="setColorsAndRedirect('button1', '/MQTT')">Data přijímat z MQTT</button>
+    <button id="button2" class="button gray" onclick="setColorsAndRedirect('button2', '/serial')">Data přijímat Seriově</button>
   {% endblock%}
 <nav class="navbar bg-body-tertiary"> 
   <div class="container-fluid">  
@@ -53,12 +99,15 @@
     
   </div>
 </div>
+<div id="graph">
+  {{ graph_html|safe }}
+</div>
 <!-- VSECHNY HODNOTA --> 
 <div class="card mx-5 mt-2">
   <div class="card-body">
       <h5 class="card-title">Teploty</h5>
     
-      {% for temp in temps %}
+      {% for temp in temps|reverse %}
       <div class="card mb-2">
           <div class="card-body" id="temp-{{ temp.id }}">
               <h5 class="card-title">Teplota: {{ temp.temp }}</h5>
@@ -126,6 +175,53 @@
             }
         });
     });
+var reset = {{ reset|tojson }}; // Z Flasku dostaneme info o resetu
+
+function setColorsAndRedirect(clickedId, url) {
+    var button1 = document.getElementById('button1');
+    var button2 = document.getElementById('button2');
+
+    if (clickedId === 'button1') {
+        button1.className = 'button green disabled';
+        button2.className = 'button red disabled';
+    } else {
+        button1.className = 'button red disabled';
+        button2.className = 'button green disabled';
+    }
+
+    button1.disabled = true;
+    button2.disabled = true;
+
+    localStorage.setItem('buttonColors', JSON.stringify({
+        button1: button1.className,
+        button2: button2.className
+    }));
+
+    window.location.href = url;
+}
+
+function loadColors() {
+    if (!reset) {
+        var colors = localStorage.getItem('buttonColors');
+        if (colors) {
+            colors = JSON.parse(colors);
+            var button1 = document.getElementById('button1');
+            var button2 = document.getElementById('button2');
+            button1.className = colors.button1;
+            button2.className = colors.button2;
+
+            if (colors.button1.includes('disabled')) {
+                button1.disabled = true;
+                button2.disabled = true;
+            }
+        }
+    } else {
+        localStorage.clear();  // Vymažeme uložená data po restartu
+    }
+}
+
+window.onload = loadColors;
+
 </script>
 </body>  
 </html>

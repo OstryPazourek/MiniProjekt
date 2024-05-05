@@ -3,19 +3,26 @@ from flask import Flask,render_template,redirect, url_for, jsonify, request  # I
 from blueprintAPI import simple_page
 app = Flask(__name__)  # Creating an instance of the Flask class  
 app.register_blueprint(simple_page)
+app.config['RESTARTED'] = True 
 from blueprintAPI import getName, getVypis, changeName, changeVypis
 import sqlite3
 import json
 import re
 import string
-import random
-#from hashlib import sha256
-#from cryptography.fernet import Fernet
-#import base64
-#from Crypto.Cipher import AES #pip3 install pycryptodome ukazka kodu https://stackoverflow.com/questions/15956952/how-do-i-decrypt-using-hashlib-in-python
+import paho.mqtt.subscribe as subscribe
+import json
+import threading
+from datetime import datetime
+import plotly.graph_objs as go
+from datetime import datetime
+import numpy as np
+import time
+import serial
 
-
-
+def print_msg(client, userdata, message):
+    
+    MSG = json.loads(message.payload.decode("utf-8"))
+    print("%s : %s" % (message.topic, MSG))
 
 
 chars = " " + string.punctuation + string.digits + string.ascii_letters
@@ -24,21 +31,6 @@ chars = list(chars)
 #random.shuffle(key)
 key = ['a', 's', '$', 'P', ';', "'", 'D', '2', 'q', 'f', 'd', '5', '[', 'z', '(', 'G', '!', 'p', 'i', 'Y', '@', '?', ':', '}', 'I', ' ', 'B', 'Q', '>', '8', '^', 'b', ']', '{', ')', 'U', '0', 'm', '1', 'S', '`', 'v', '#', 'N', 'R', 'o', 'J', '&', 'l', '=', 'y', '.', 'T', '~', 'K', '-', '6', 'M', 'O', 't', 'A', 'k', 'w', '+', 'C', '*', '<', '9', 'h', '%', 'H', ',', 'x', 'W', '|', 'c', '7', 'r', 'E', '\\', 'F', 'u', 'X', 'Z', 'n', '3', 'e', '"', '/', '4', 'g', 'V', 'L', '_', 'j']
 
-'''
-entered_pw = "secretpw"
-key = base64.b64encode(f"{entered_pw:<32}".encode("utf-8"))
-encryptor = Fernet(key=key)
-encrypted = encryptor.encrypt(
-    "my super secret data with a password".encode("utf-8")
-)
-encrypted = encrypted.decode("utf-8")
-print(encrypted)
-#encrypted = encrypted.encode("utf-8")
-print(encrypted)
-
-print(encryptor.decrypt(encrypted).decode("utf-8"))
-
-'''
 #print (ciphertext)
 def deleteTemps(mazani):
     conn = sqlite3.connect("database.db")
@@ -97,15 +89,6 @@ def addUsers( name, password ):
 
     return 0
 '''
-def get_Gpocet_vypis():
-    return Gpocet_vypis
-def put_Gpocet_vypis(pocet_vypis):
-    global Gpocet_vypis
-    Gpocet_vypis = pocet_vypis
-    return 0
-'''
-
-'''
 temps = [
     {'id': 1, 'timestamp': '12:00', 'temp': 25},
     {'id': 2, 'timestamp': '12:01', 'temp': 24},
@@ -120,48 +103,42 @@ users = [
 ]
 '''
 
-'''
-@app.route('/api/temp/<int:pocet_vypis>', methods=['POST'])
-def post_temp(pocet_vypis):
-    global Gpocet_vypis
-    Gpocet_vypis = pocet_vypis
-    return jsonify(Gpocet_vypis), 200
-
-@app.route('/api/temp/<int:pocet_vypis>', methods=['GET'])
-def get_temp(pocet_vypis):
-    global Gpocet_vypis
-    Gpocet_vypis = pocet_vypis
-    return jsonify(Gpocet_vypis), 200
-
-@app.route('/api/temp', methods=['GET'])
-def get2_temp():
-    global Gpocet_vypis
-    return jsonify(Gpocet_vypis), 200
-
-@app.route('/api/temp/<int:mazani>', methods=['DELETE'])
-def delete_temp(mazani):
-    
-   # temps = temps[(mazani):]
-    
-    deleteTemps(mazani)
-    #temps = getTemps(json_str = True )
-    #del temps [0:mazani]
-    return jsonify(mazani), 200
-   '''
-
 global temps
 Gpocet_vypis=2
 print(getName())
 name = getName()
+conectionDATA = "MQTT"
 
 
 @app.route('/')  # View function for endpoint '/'  
-def home():   
+def home():
+    reset = app.config['RESTARTED']
+    app.config['RESTARTED'] = False
     global Gpocet_vypis
     Gpocet_vypis = getVypis()
     global temps
     global name
     temps = getTemps(json_str = True )
+
+    Grafdates = [datetime.strptime(d['timestamp'], '%Y-%m-%d %H:%M:%S') for d in temps]
+    Graftemps = [d['temp'] for d in temps]
+    graph = go.Figure(data=go.Scatter(x=Grafdates, y=Graftemps, mode='lines+markers'))
+
+    graph.update_layout(
+        title='Graf teploty',
+        xaxis_title='Datum',
+        yaxis_title='Teplota (°C)',
+        xaxis=dict(
+            tickformat='%Y-%m-%d %H:%M:%S',
+            tickangle=45
+        ),
+        yaxis=dict(
+        range=[-5, 40]  # Nastavení rozsahu osy Y od 15 do 30 stupňů Celsius
+    )
+    )
+
+    graph_html = graph.to_html(full_html=False, default_width='100%', default_height='auto')
+
     delka = len(temps)    
     if Gpocet_vypis > delka:
         #Gpocet_vypis = delka
@@ -173,44 +150,17 @@ def home():
         #Gpocet_vypis=1
         changeVypis(1)
     print(Gpocet_vypis)
-    return render_template("base.html",name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi])  
-'''
-@app.route('/<name>')  # View function for endpoint '/'  
-def helloNSI4(name=""):   
-    return render_template("base.html",name=name, temps=temps[(len(temps)-Gpocet_vypis):], temp1=temps[-1])  
+    return render_template("base.html",graph_html=graph_html,name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi],reset=reset)  
 
-@app.route('/login')  # View function for endpoint '/'  
-def helloNSI2():  
-    return render_template("login.html") 
-'''
 # Route for handling the login page logic
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     users = getUsers(json_str = True )
-    '''
-    global name
-    name = getName()
-    '''
     global key
     error = None
-    #uzivatel = 'admin'
-    #heslo = 'admin'
     if request.method == 'POST':
         for user in users:
-            
-            #encryptor = Fernet(key=key)
-            #encrypted =  user['password']
-
-           #plaintext = cipher.decrypt(user['password'])
-            #encrypted = user['password'].encode("utf-8")           
-            #heslo = encryptor.decrypt(encrypted).decode("utf-8")
-            #heslo = encryptor.decrypt(user['password'])
-            #entered_pw = "secretpw"
-            #key = base64.b64encode(f"{entered_pw:<32}".encode("utf-8"))
-            #encryptor = Fernet(key=key)
-            #heslo = encryptor.decrypt(user['password']).decode("utf-8")
             plain_text = ""
-
             for letter in user['password']:
                 index = key.index(letter)
                 plain_text += chars[index]
@@ -228,6 +178,22 @@ def logout():
     #global name
     #name = "Anonymous"
     changeName()
+    return redirect(url_for("home"))
+@app.route("/MQTT/", methods = ["GET", "POST"])
+def mqtt():
+    global conectionDATA  
+    conectionDATA = "MQTT"
+    print (conectionDATA)
+    mqtt_thread = threading.Thread(target=start_mqtt_subscriber)
+    mqtt_thread.start()  # Spustí MQTT v samostatném vlákně
+    return redirect(url_for("home"))
+@app.route("/serial/", methods = ["GET", "POST"])
+def serial():
+    global conectionDATA  
+    conectionDATA = "serial"
+    print (conectionDATA)
+    mqtt_thread = threading.Thread(target=start_serial_comunation)
+    mqtt_thread.start()
     return redirect(url_for("home"))
 
 @app.route('/register', methods =['GET', 'POST'])
@@ -252,7 +218,58 @@ def register():
             msg = 'Úspěšně jste se zaregistroval!'
     elif request.method == 'POST':
         msg = 'Prosím vyplňte všechy položky!'
-    return render_template('register.html', msg = msg)     
-# Starting a web application at 0.0.0.0.0:5000 with debug mode enabled  
-if __name__ == "__main__":  
+    return render_template('register.html', msg = msg)   
+  
+def insert_temperature(temp, timestamp):
+    conn = sqlite3.connect("database.db")  # Připojení k databázi
+    cursor = conn.cursor()
+    # Vytvoření tabulky, pokud ještě neexistuje
+    #cursor.execute('''CREATE TABLE IF NOT EXISTS temperatures (id INTEGER PRIMARY KEY, temperature REAL, timestamp TEXT)''')
+    # Vložení nové teploty a času do tabulky
+    cursor.execute('INSERT INTO data (timestamp, temp) VALUES (?, ?)', (timestamp, temp))
+    conn.commit()  # Commit změn
+    conn.close()  # Uzavření spojení s databází
+    print(f"Inserted into database: Temperature = {temp}, Timestamp = {timestamp}")
+
+def print_msg(client, userdata, message):
+    if conectionDATA == "MQTT":
+        data = json.loads(message.payload.decode("utf-8"))
+        temperature = data['Temp']  # Získání teploty z MQTT zprávy
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Aktuální čas
+        insert_temperature(temperature, timestamp)  # Vložení teploty a času do databáze
+    
+
+def start_mqtt_subscriber():
+    subscribe.callback(print_msg, "KURNIK/DHT11", hostname="test.mosquitto.org")
+ 
+def start_serial_comunation():
+    while True:
+        if conectionDATA == "serial":
+            try:
+                import serial
+                ser = serial.Serial('COM5', 115200)
+                ser.flushInput()
+                while conectionDATA == "serial":
+                    serDecode = ser.readline().decode()
+                    print(serDecode)
+                    temperature = json.loads(serDecode)
+                    print(temperature["Temp"])
+                    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Aktuální čas
+                    insert_temperature(temperature["Temp"], timestamp)
+            except Exception as e:
+                print(e)
+                print("unable to open COM port")
+                time.sleep(2)
+                #exit(-1)
+            
+
+
+if __name__ == "__main__":
+ 
+    #mqtt_thread = threading.Thread(target=start_mqtt_subscriber)
+    #mqtt_thread.start()  # Spustí MQTT v samostatném vlákně
+    #mqtt_thread = threading.Thread(target=start_serial_comunation)
+    #mqtt_thread.start()
+    #subscribe.callback(print_msg, "KURNIK/DHT11", hostname="test.mosquitto.org")   
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
+    # Starting a web application at 0.0.0.0.0:5000 with debug mode enabled
