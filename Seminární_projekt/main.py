@@ -20,6 +20,9 @@ import numpy as np
 import time
 import serial
 import sys
+import paho.mqtt.publish as publish
+server = "test.mosquitto.org"
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 #ahoj
 def print_msg(client, userdata, message):
@@ -234,7 +237,7 @@ def print_msg(client, userdata, message):
     
 
 def start_mqtt_subscriber():
-    subscribe.callback(print_msg, "KURNIK/DHT11", hostname="test.mosquitto.org")
+    subscribe.callback(print_msg, "KURNIK/DHT11", hostname=server)
  
 def start_serial_comunation():
     while True:

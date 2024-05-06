@@ -4,6 +4,11 @@ import sqlite3
 import json
 from datetime import datetime
 import os
+import paho.mqtt.publish as publish
+import sys
+server = "mqtt.eclipseprojects.io"
+
+
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 #from main import put_Gpocet_vypis
 dbFile = os.path.join(os.getcwd(), 'databaseKur.db')
@@ -45,6 +50,7 @@ name = "Anonymous"
 Gpocet_vypis = 2
 open = None
 close = None
+
 
 def deleteTemps(mazani):
     conn = sqlite3.connect("databaseKur.db")
@@ -125,7 +131,10 @@ def delete_time():
     conn.commit() 
     conn.close() 
     print("Mazu casi otevirani a zavirani z kurniku")
-
+def otevri():
+    publish.single("KURNIK/DVERE", 1 , hostname=server)
+def zavri():
+    publish.single("KURNIK/DVERE", 0 , hostname=server)    
 
 def get_time_open():
     global open

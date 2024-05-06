@@ -89,6 +89,36 @@
         border-radius: 12px;
         border: 2px solid black;         
 }   
+.ovladani{
+    border-radius: 12px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 12px;
+    border: 2px solid black;  
+}
+.submit-button{
+    border-radius: 12px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 12px;
+    border: 2px solid black;  
+
+}
+.submit-button:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  } 
+  .btn-success:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  } 
+  .btn-warning:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  } 
+.btn-danger:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  } 
+  .ovladani:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  } 
 .btn-primary:hover {
         box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
   } 
@@ -171,9 +201,11 @@
         </div>
         <div class="submit-button">
             <button class="btn btn-primary" type="submit">Nastavit Časy</button>
-
-            
-            <p class="bottom"><a class="btn btn-danger delete-task" href="/api/delete_time/"> Smazat Časy</a></p>
+            <a href="/api/delete_time/" class="btn btn-warning delete-task" role="button" aria-pressed="true">Smazat Časy</a>
+        </div>
+        <div class="ovladani">
+            <a href="/api/delete_time/" class="btn btn-success" role="button" aria-pressed="true">Otevři hned</a>
+            <a href="/api/delete_time/" class="btn btn-danger" role="button" aria-pressed="true">Zavři hned</a>
             
         </div>
     </form>
@@ -321,22 +353,28 @@ function loadColors() {
 window.onload = loadColors;
 
 $(document).ready(function() {
-            $('#time-settings').submit(function(event) {
-                event.preventDefault();
-                var openTime = $('#open-time').val();
-                var closeTime = $('#close-time').val();
+    $('#time-settings').submit(function(event) {
+        event.preventDefault();
+        var openTime = $('#open-time').val();
+        var closeTime = $('#close-time').val();
 
-                // Odeslání času otevření
-                $.get('/api/open/' + openTime, function(response) {
-                    alert('Čas otevření nastaven na: ' + response);
-                });
+        // Kontrola, zda časy nejsou stejné
+        if (openTime === closeTime) {
+            alert('Čas otevření a čas zavření nemohou být stejné.');
+            return; // Zastaví funkci, aby nedošlo k odeslání dat
+        }
 
-                // Odeslání času zavření
-                $.get('/api/close/' + closeTime, function(response) {
-                    alert('Čas zavření nastaven na: ' + response);
-                });
+        // Odeslání času otevření
+        $.get('/api/open/' + openTime, function(response) {
+            alert('Čas otevření nastaven na: ' + response);
+            
+            // Odeslání času zavření - probíhá až po úspěšném nastavení času otevření
+            $.get('/api/close/' + closeTime, function(response) {
+                alert('Čas zavření nastaven na: ' + response);
             });
         });
+    });
+});
 
 
 
