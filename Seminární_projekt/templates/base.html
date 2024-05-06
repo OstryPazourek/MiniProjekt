@@ -69,14 +69,20 @@
        #content-container {
         max-width: 600px; 
         margin: auto;
-        border-radius: 12px;
         padding: 10px 20px;
-        border: none;
         cursor: pointer;
         border-radius: 12px;
         border: 2px solid ; 
-}
+        }
 
+        #user{
+        max-width: 6000px; 
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 12px;
+        border: 2px solid ;        
+        }
+        
 .time-form {
     display: flex;
     flex-direction: column;
@@ -122,8 +128,8 @@
 </head>  
 <body>  
   {% block privitani%}
-  Měření teploty <br>
-  Vitej uživateli:  <h1 id="hello-world"> {{name}} </h1>   <script src="/static/script.js"></script>  <br>  
+
+  Vitej uživateli:  <h1 id="user"> {{name}} </h1>   <script src="/static/script.js"></script>  <br>  
   
   <p class="bottom"><a class="btn btn-danger delete-task" href="{{url_for('logout')}}"> Odhlásit se</a></p>
  
