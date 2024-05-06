@@ -20,7 +20,7 @@ import numpy as np
 import time
 import serial
 import sys
-
+#ahoj
 def print_msg(client, userdata, message):
     
     MSG = json.loads(message.payload.decode("utf-8"))
