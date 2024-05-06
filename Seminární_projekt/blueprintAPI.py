@@ -1,9 +1,45 @@
-from flask import Blueprint, render_template, abort, jsonify
+from flask import Blueprint, render_template, abort, jsonify,redirect, url_for
 from jinja2 import TemplateNotFound
 import sqlite3
 import json
 from datetime import datetime
+import os
 #from main import put_Gpocet_vypis
+dbFile = os.path.join(os.getcwd(), 'databaseKur.db')
+conn = sqlite3.connect(dbFile)
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    password TEXT NOT NULL
+);
+""")
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS open (
+    id INTEGER PRIMARY KEY,
+    timeopen TEXT NOT NULL
+);
+""")
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS close (
+    id INTEGER PRIMARY KEY,
+    timeclose TEXT NOT NULL
+);
+""")
+#cursor.execute("INSERT INTO users (name, password) VALUES ('admin', 'admin')")
+
+
+
+createQuery = f"""
+CREATE TABLE IF NOT EXISTS data (
+    id INTEGER PRIMARY KEY,
+    timestamp TEXT NOT NULL,
+    temp REAL NOT NULL
+);
+"""
+cursor.execute(createQuery)
 name = "Anonymous"
 Gpocet_vypis = 2
 open = None
@@ -66,25 +102,35 @@ def insert_timeopen(open_time):
 
 
 def insert_timeclose(close_time):
-    #open_time = '10:00'
+    #close_time = '18:00'
     print(type(close_time)) 
     conn = sqlite3.connect("databaseKur.db")  # Připojení k databázi 
     cursor = conn.cursor()
+    cursor.execute('DELETE FROM close')
+    conn.commit() 
+    conn.close() 
+    conn2 = sqlite3.connect("databaseKur.db")  # Připojení k databázi 
+    cursor = conn2.cursor() 
+    cursor.execute('INSERT INTO close (timeclose) VALUES (?)', (close_time,))
+    conn2.commit()  
+    conn2.close() 
+    print(f"Inserted into database:  cas zavreni = {close_time}")
+
+def delete_time(): 
+    conn = sqlite3.connect("databaseKur.db")  # Připojení k databázi 
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM close')
     cursor.execute('DELETE FROM open')
     conn.commit() 
     conn.close() 
-    conn = sqlite3.connect("databaseKur.db")  # Připojení k databázi 
-    cursor = conn.cursor() 
-    cursor.execute('INSERT INTO close (timeclose) VALUES (?)', (close_time,))
-    conn.commit()  
-    conn.close() 
-    print(f"Inserted into database:  cas zavreni = {close_time}")
+    print("Mazu casi otevirani a zavirani z kurniku")
+
 
 def get_time_open():
     global open
     conn = sqlite3.connect("databaseKur.db")  # Připojení k databázi
     cursor = conn.cursor()
-    cursor.execute("SELECT timeopen FROM open LIMIT 1")
+    cursor.execute("SELECT timeopen FROM open")
     hodnota = cursor.fetchone()
     if hodnota is not None:
      # Pokud byla hodnota nalezena, zapište ji do proměnné
@@ -94,12 +140,13 @@ def get_time_open():
     conn.commit()  
     conn.close() 
     print(f"Take out of database:  cas otevreni = {open}")
+    return open
     
 def get_time_close():
     global close
     conn = sqlite3.connect("databaseKur.db")  # Připojení k databázi
     cursor = conn.cursor()
-    cursor.execute("SELECT timeclose FROM close LIMIT 1")
+    cursor.execute("SELECT timeclose FROM close")
     hodnota = cursor.fetchone()
     if hodnota is not None:
      # Pokud byla hodnota nalezena, zapište ji do proměnné
@@ -109,6 +156,7 @@ def get_time_close():
     conn.commit()  
     conn.close() 
     print(f"Take out of database:  cas zavreni = {close}")
+    return close
 open = get_time_open()
 close = get_time_close()
 print(f"Cas otevreni je = {open}")
@@ -141,12 +189,17 @@ def post_open(POSTopen):
     #print(time_obj.strftime('%H%M'))
     return jsonify(open), 200
 
+@simple_page.route('/api/delete_time/', methods=["GET", "POST"])
+def mazani_casu():
+    delete_time()
+    return redirect(url_for("home"))
+
 @simple_page.route('/api/close/<string:POSTclose>', methods=['GET'])
 def post_close(POSTclose):
     time_obj = datetime.strptime(POSTclose, '%H:%M')
     global close
     close = (time_obj.strftime('%H:%M'))
-    insert_timeopen(close)
+    insert_timeclose(close)
     #print(type(time_obj.strftime('%H:%M'))) 
     #print(time_obj.strftime('%H%M'))
     return jsonify(close), 200

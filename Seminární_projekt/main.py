@@ -6,7 +6,7 @@ app = Flask(__name__)  # Creating an instance of the Flask class
 app.register_blueprint(simple_page)
 app.config['RESTARTED'] = True 
 dbFile = os.path.join(os.getcwd(), 'databaseKur.db')
-from blueprintAPI import getName, getVypis, changeName, changeVypis, get_time_open, get_time_close, insert_timeclose, insert_timeopen
+from blueprintAPI import getName, getVypis, changeName, changeVypis, get_time_open, get_time_close, insert_timeclose, insert_timeopen, delete_time
 import sqlite3
 import json
 import re
@@ -19,40 +19,8 @@ import plotly.graph_objs as go
 import numpy as np
 import time
 import serial
-conn = sqlite3.connect(dbFile)
-cursor = conn.cursor()
+import sys
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    password TEXT NOT NULL
-);
-""")
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS open (
-    id INTEGER PRIMARY KEY,
-    timeopen TEXT NOT NULL
-);
-""")
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS close (
-    id INTEGER PRIMARY KEY,
-    timeclose TEXT NOT NULL
-);
-""")
-#cursor.execute("INSERT INTO users (name, password) VALUES ('admin', 'admin')")
-
-
-
-createQuery = f"""
-CREATE TABLE IF NOT EXISTS data (
-    id INTEGER PRIMARY KEY,
-    timestamp TEXT NOT NULL,
-    temp REAL NOT NULL
-);
-"""
-cursor.execute(createQuery)
 def print_msg(client, userdata, message):
     
     MSG = json.loads(message.payload.decode("utf-8"))
@@ -131,6 +99,15 @@ name = getName()
 conectionDATA = "MQTT"
 
 
+def restart_program():
+    """Restartuje aktuální program s explicitním nastavením pracovního adresáře a logováním."""
+    try:
+        # Nastavení pracovního adresáře na adresář aktuálního skriptu
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
+    except Exception as e:
+        print(f"Chyba při restartu: {e}")
 
 @app.route('/')  # View function for endpoint '/'  
 def home():
@@ -172,7 +149,11 @@ def home():
         #Gpocet_vypis=1
         changeVypis(1)
     print(Gpocet_vypis)
-    return render_template("base.html",graph_html=graph_html,name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi],reset=reset)  
+    open_time=get_time_open()
+    close_time=get_time_close()
+    print(open_time)
+    print(close_time)
+    return render_template("base.html",graph_html=graph_html,name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi],reset=reset,open_time=open_time,close_time=close_time)  
 
 # Route for handling the login page logic
 @app.route('/login', methods=['GET', 'POST'])
@@ -199,6 +180,7 @@ def login():
 def logout():
     #global name
     #name = "Anonymous"
+    restart_program()
     changeName()
     return redirect(url_for("home"))
 @app.route("/MQTT/", methods = ["GET", "POST"])

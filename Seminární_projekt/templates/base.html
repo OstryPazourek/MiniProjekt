@@ -82,7 +82,16 @@
         border-radius: 12px;
         border: 2px solid ;        
         }
-        
+        .btn-primary {
+        border-radius: 12px;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 12px;
+        border: 2px solid black;         
+}   
+.btn-primary:hover {
+        box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+  } 
 .time-form {
     display: flex;
     flex-direction: column;
@@ -133,8 +142,7 @@
   
   <p class="bottom"><a class="btn btn-danger delete-task" href="{{url_for('logout')}}"> Odhlásit se</a></p>
  
-    <button id="button1" class="button gray" onclick="setColorsAndRedirect('button1', '/MQTT')">Data přijímat z MQTT</button>
-    <button id="button2" class="button gray" onclick="setColorsAndRedirect('button2', '/serial')">Data přijímat Seriově</button>
+    
     {% endblock%}
 <nav class="navbar_bg-body-tertiary"> 
   <div class="container-fluid">  
@@ -148,19 +156,25 @@
   </div>
 </nav>  
 {% block card%}
+<button id="button1" class="button gray" onclick="setColorsAndRedirect('button1', '/MQTT')">Data přijímat z MQTT</button>
+<button id="button2" class="button gray" onclick="setColorsAndRedirect('button2', '/serial')">Data přijímat Seriově</button>
 <div id="content-container">
     <h2>Nastavení Času pro Kurník</h2>
     <form id="time-settings" class="time-form">
         <div class="form-group">
             <label for="open-time">Čas otevření:</label>
-            <input type="time" id="open-time">
+            <input type="time" id="open-time" name="open-time" value="{{ open_time }}">
         </div>
         <div class="form-group">
             <label for="close-time">Čas zavření:</label>
-            <input type="time" id="close-time">
+            <input type="time" id="close-time" name="close-time" value="{{ close_time }}">
         </div>
         <div class="submit-button">
-            <button type="submit">Nastavit Časy</button>
+            <button class="btn btn-primary" type="submit">Nastavit Časy</button>
+
+            
+            <p class="bottom"><a class="btn btn-danger delete-task" href="/api/delete_time/"> Smazat Časy</a></p>
+            
         </div>
     </form>
 </div>
