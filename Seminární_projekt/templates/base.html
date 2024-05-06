@@ -1,6 +1,14 @@
 <html lang="cs">  
 <head>
     <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        input[type="time"], button {
+            padding: 8px;
+            margin: 5px;
+        }
+    </style>
+
     <style>
         .button {
             color: white;
@@ -70,7 +78,7 @@
  
     <button id="button1" class="button gray" onclick="setColorsAndRedirect('button1', '/MQTT')">Data přijímat z MQTT</button>
     <button id="button2" class="button gray" onclick="setColorsAndRedirect('button2', '/serial')">Data přijímat Seriově</button>
-  {% endblock%}
+    {% endblock%}
 <nav class="navbar bg-body-tertiary"> 
   <div class="container-fluid">  
     <a class="navbar-brand" href="/login"><h1 id="hello-world">Přihlášení</h1></a>  
@@ -83,6 +91,16 @@
   </div>
 </nav>  
 {% block card%}
+<h2>Nastavení Času pro Kurník</h2>
+    <form id="time-settings">
+        <label for="open-time">Čas otevření:</label>
+        <input type="time" id="open-time" required>
+        <br>
+        <label for="close-time">Čas zavření:</label>
+        <input type="time" id="close-time" required>
+        <br>
+        <button type="submit">Nastavit Časy</button>
+    </form>
 <!-- POLEDNI HODNOTA -->  
 <div class="card mx-5 mt-2">
   <div class="card-body">
@@ -223,6 +241,28 @@ function loadColors() {
 }
 
 window.onload = loadColors;
+
+$(document).ready(function() {
+            $('#time-settings').submit(function(event) {
+                event.preventDefault();
+                var openTime = $('#open-time').val();
+                var closeTime = $('#close-time').val();
+
+                // Odeslání času otevření
+                $.get('/api/open/' + openTime, function(response) {
+                    alert('Čas otevření nastaven na: ' + response);
+                });
+
+                // Odeslání času zavření
+                $.get('/api/close/' + closeTime, function(response) {
+                    alert('Čas zavření nastaven na: ' + response);
+                });
+            });
+        });
+
+
+
+
 
 </script>
 {% endblock%}
