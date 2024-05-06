@@ -6,7 +6,7 @@ from datetime import datetime
 import os
 import paho.mqtt.publish as publish
 import sys
-server = "mqtt.eclipseprojects.io"
+server = "test.mosquitto.org"
 
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -132,8 +132,10 @@ def delete_time():
     conn.close() 
     print("Mazu casi otevirani a zavirani z kurniku")
 def otevri():
+    print(f"Oteviram : KURNIK/DVERE do {server}")
     publish.single("KURNIK/DVERE", 1 , hostname=server)
 def zavri():
+    print(f"Zaviram : KURNIK/DVERE do {server}")
     publish.single("KURNIK/DVERE", 0 , hostname=server)    
 
 def get_time_open():
@@ -202,6 +204,14 @@ def post_open(POSTopen):
 @simple_page.route('/api/delete_time/', methods=["GET", "POST"])
 def mazani_casu():
     delete_time()
+    return redirect(url_for("home"))
+@simple_page.route('/api/otevri/', methods=["GET", "POST"])
+def otevriroute():
+    otevri()
+    return redirect(url_for("home"))
+@simple_page.route('/api/zavri/', methods=["GET", "POST"])
+def zavriroute():
+    zavri()
     return redirect(url_for("home"))
 
 @simple_page.route('/api/close/<string:POSTclose>', methods=['GET'])
