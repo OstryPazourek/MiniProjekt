@@ -20,6 +20,7 @@ import numpy as np
 import time
 import serial
 import sys
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 #ahoj
 def print_msg(client, userdata, message):
     
@@ -99,15 +100,7 @@ name = getName()
 conectionDATA = "MQTT"
 
 
-def restart_program():
-    """Restartuje aktuální program s explicitním nastavením pracovního adresáře a logováním."""
-    try:
-        # Nastavení pracovního adresáře na adresář aktuálního skriptu
-        os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        python = sys.executable
-        os.execl(python, python, *sys.argv)
-    except Exception as e:
-        print(f"Chyba při restartu: {e}")
+
 
 @app.route('/')  # View function for endpoint '/'  
 def home():
@@ -180,7 +173,7 @@ def login():
 def logout():
     #global name
     #name = "Anonymous"
-    restart_program()
+   
     changeName()
     return redirect(url_for("home"))
 @app.route("/MQTT/", methods = ["GET", "POST"])

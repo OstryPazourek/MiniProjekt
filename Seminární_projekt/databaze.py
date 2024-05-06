@@ -7,7 +7,7 @@ import os
 import json
  
 
- 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 numRecords = 10
 dbFile = os.path.join(os.getcwd(), 'databaseKur.db')
 tableName = 'data'
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 
 createQuery = f"""
-CREATE TABLE IF NOT EXISTS {tableName} (
+CREATE TABLE IF NOT EXISTS data (
     id INTEGER PRIMARY KEY,
     timestamp TEXT NOT NULL,
     temp REAL NOT NULL
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS {tableName} (
 """
 cursor.execute(createQuery)
  
-countQuery = f"SELECT COUNT(*) FROM {tableName}"
+countQuery = f"SELECT COUNT(*) FROM data"
 cursor.execute(countQuery)
 count = cursor.fetchone()[0]
  

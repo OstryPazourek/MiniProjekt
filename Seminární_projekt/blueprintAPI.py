@@ -4,6 +4,7 @@ import sqlite3
 import json
 from datetime import datetime
 import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 #from main import put_Gpocet_vypis
 dbFile = os.path.join(os.getcwd(), 'databaseKur.db')
 conn = sqlite3.connect(dbFile)
