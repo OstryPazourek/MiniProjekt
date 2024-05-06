@@ -21,7 +21,22 @@ import time
 import serial
 import sys
 import paho.mqtt.publish as publish
+import asyncio
+import datetime
 server = "test.mosquitto.org"
+def otevri():
+    print("Čas se shoduje, funkce otevri() byla zavolána.")
+def zavri():
+    print("Čas se shoduje, funkce zavri() byla zavolána.")
+
+"""
+def otevri():
+    print(f"Oteviram : KURNIK/DVERE do {server}")
+    publish.single("KURNIK/DVERE", 1 , hostname=server)
+def zavri():
+    print(f"Zaviram : KURNIK/DVERE do {server}")
+    publish.single("KURNIK/DVERE", 0 , hostname=server)      
+"""
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 #ahoj
@@ -36,6 +51,9 @@ chars = list(chars)
 #key = chars.copy()
 #random.shuffle(key)
 key = ['a', 's', '$', 'P', ';', "'", 'D', '2', 'q', 'f', 'd', '5', '[', 'z', '(', 'G', '!', 'p', 'i', 'Y', '@', '?', ':', '}', 'I', ' ', 'B', 'Q', '>', '8', '^', 'b', ']', '{', ')', 'U', '0', 'm', '1', 'S', '`', 'v', '#', 'N', 'R', 'o', 'J', '&', 'l', '=', 'y', '.', 'T', '~', 'K', '-', '6', 'M', 'O', 't', 'A', 'k', 'w', '+', 'C', '*', '<', '9', 'h', '%', 'H', ',', 'x', 'W', '|', 'c', '7', 'r', 'E', '\\', 'F', 'u', 'X', 'Z', 'n', '3', 'e', '"', '/', '4', 'g', 'V', 'L', '_', 'j']
+
+
+
 
 #print (ciphertext)
 def deleteTemps(mazani):
@@ -258,15 +276,25 @@ def start_serial_comunation():
                 print("unable to open COM port")
                 time.sleep(2)
                 #exit(-1)
-            
-
+def timeChecker():
+    import paho.mqtt.publish as publish
+    while True:
+        now = datetime.datetime.now().strftime("%H:%M")
+        print(f"cas ted {now} a csa open { get_time_open()}, a cas close { get_time_close()}")
+        if now == get_time_open():
+            print("cas se shoduje, funkce otevri() byla zavolana.") #open()
+            publish.single("KURNIK/DVERE", 1 , hostname=server)
+        if now == get_time_close():
+            print("Cas se shoduje, funkce zavri() byla zavolana.") #zavri() 
+            publish.single("KURNIK/DVERE", 0 , hostname=server) 
+        time.sleep(60)
 
 if __name__ == "__main__":
  
-    #mqtt_thread = threading.Thread(target=start_mqtt_subscriber)
-    #mqtt_thread.start()  # Spustí MQTT v samostatném vlákně
+    time_thread = threading.Thread(target=timeChecker)
+    time_thread.start() 
     #mqtt_thread = threading.Thread(target=start_serial_comunation)
     #mqtt_thread.start()
-    #subscribe.callback(print_msg, "KURNIK/DHT11", hostname="test.mosquitto.org")   
+    #subscribe.callback(print_msg, "KURNIK/DHT11", hostname="test.mosquitto.org") 
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
     # Starting a web application at 0.0.0.0.0:5000 with debug mode enabled
