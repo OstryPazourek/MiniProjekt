@@ -14,6 +14,7 @@ import string
 import paho.mqtt.subscribe as subscribe
 import json
 import threading
+import datetime
 from datetime import datetime
 import plotly.graph_objs as go
 import numpy as np
@@ -133,7 +134,7 @@ def home():
     global name
     temps = getTemps(json_str = True )
 
-    Grafdates = [datetime.strptime(d['timestamp'], '%Y-%m-%d %H:%M:%S') for d in temps]
+    Grafdates = [datetime.datetime.strptime(d['timestamp'], '%Y-%m-%d %H:%M:%S') for d in temps]
     Graftemps = [d['temp'] for d in temps[-30240:]]
     graph = go.Figure(data=go.Scatter(x=Grafdates, y=Graftemps, mode='lines+markers'))
 
@@ -250,7 +251,7 @@ def print_msg(client, userdata, message):
     if conectionDATA == "MQTT":
         data = json.loads(message.payload.decode("utf-8"))
         temperature = data['Temp']  # Získání teploty z MQTT zprávy
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Aktuální čas
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Aktuální čas
         insert_temperature(temperature, timestamp)  # Vložení teploty a času do databáze
     
 
@@ -269,7 +270,7 @@ def start_serial_comunation():
                     print(serDecode)
                     temperature = json.loads(serDecode)
                     print(temperature["Temp"])
-                    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Aktuální čas
+                    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Aktuální čas
                     insert_temperature(temperature["Temp"], timestamp)
             except Exception as e:
                 print(e)
