@@ -113,6 +113,7 @@ conectionDATA = "MQTT"
 @app.route('/')  # View function for endpoint '/'  
 def home():
     reset = app.config['RESTARTED']
+    #print (type(reset))
     app.config['RESTARTED'] = False
     global Gpocet_vypis
     Gpocet_vypis = getVypis()
@@ -171,6 +172,7 @@ def login():
                 return redirect(url_for('home'))               
             
         error = 'Chybné přihlašovací údaje. Zkuste to Znova.'
+    #error = ' '
     return render_template('login.html', error=error)
 
 @app.route("/logout/", methods = ["GET", "POST"])
