@@ -134,25 +134,6 @@ def home():
     global name
     temps = getTemps(json_str = True )
 
-    Grafdates = [datetime.datetime.strptime(d['timestamp'], '%Y-%m-%d %H:%M:%S') for d in temps]
-    Graftemps = [d['temp'] for d in temps[-30240:]]
-    graph = go.Figure(data=go.Scatter(x=Grafdates, y=Graftemps, mode='lines+markers'))
-
-    graph.update_layout(
-        title='Graf teploty',
-        xaxis_title='Datum',
-        yaxis_title='Teplota (°C)',
-        xaxis=dict(
-            tickformat='%Y-%m-%d %H:%M:%S',
-            tickangle=45
-        ),
-        yaxis=dict(
-        range=[-5, 40]  # Nastavení rozsahu osy Y od 15 do 30 stupňů Celsius
-    )
-    )
-
-    graph_html = graph.to_html(full_html=False, default_width='100%', default_height='auto')
-
     delka = len(temps)    
     if Gpocet_vypis > delka:
         #Gpocet_vypis = delka
@@ -170,7 +151,7 @@ def home():
     print(close_time)
     casy = [d['timestamp'] for d in temps]
     teploty = [d['temp'] for d in temps]
-    return render_template("base.html",graph_html=graph_html,name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi],reset=reset,open_time=open_time,close_time=close_time, casy=casy, teploty=teploty)  
+    return render_template("base.html",name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi],reset=reset,open_time=open_time,close_time=close_time, casy=casy, teploty=teploty)  
 
 # Route for handling the login page logic
 @app.route('/login', methods=['GET', 'POST'])
@@ -223,7 +204,7 @@ def register():
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']
         password = request.form['password']
-        conn = sqlite3.connect("database.db")
+        conn = sqlite3.connect("databaseKur.db")
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM users WHERE name = '{username}'")
         account = cursor.fetchone()
