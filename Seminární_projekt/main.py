@@ -149,8 +149,8 @@ def home():
     close_time=get_time_close()
     print(open_time)
     print(close_time)
-    casy = [d['timestamp'] for d in temps]
-    teploty = [d['temp'] for d in temps]
+    casy = [d['timestamp'] for d in temps[(delka-getVypis()):]]
+    teploty = [d['temp'] for d in temps[(delka-getVypis()):]]
     return render_template("base.html",name=getName(), temps=temps[(delka-getVypis()):], temp1=temps[poradi],reset=reset,open_time=open_time,close_time=close_time, casy=casy, teploty=teploty)  
 
 # Route for handling the login page logic

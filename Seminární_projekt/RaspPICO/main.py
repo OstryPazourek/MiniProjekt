@@ -60,7 +60,7 @@ def TimerEvent(t):
         client.connect()
         
 Timer(mode=Timer.ONE_SHOT, period=1, callback=TimerEvent)
-Timer(mode=Timer.PERIODIC, period=60000, callback=TimerEvent)
+Timer(mode=Timer.PERIODIC, period=600000, callback=TimerEvent)
 
 while True:
     client.check_msg()

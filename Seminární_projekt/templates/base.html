@@ -148,7 +148,7 @@
 
     </style>
     {% block obnova%}
-    <meta http-equiv="refresh" content="20">
+    <meta http-equiv="refresh" content="600">
     {% endblock%}  
     <title>{% block title%}Home{% endblock%}</title>  
     <link rel="stylesheet" type="text/css" href="/static/styles.css">  
@@ -190,26 +190,26 @@
   </div>
 </nav>  
 {% block card%}
-<button id="button1" class="button gray" onclick="setColorsAndRedirect('button1', '/MQTT')">Data přijímat z MQTT</button>
-<button id="button2" class="button gray" onclick="setColorsAndRedirect('button2', '/serial')">Data přijímat Seriově</button>
+<button id="button1" class="button gray {{ 'disabled' if name != 'admin' }}" onclick="setColorsAndRedirect('button1', '/MQTT')">Data přijímat z MQTT</button>
+<button id="button2" class="button gray {{ 'disabled' if name != 'admin' }}" onclick="setColorsAndRedirect('button2', '/serial')">Data přijímat Seriově</button>
 <div id="content-container">
     <h2>Nastavení Času pro Kurník</h2>
     <form id="time-settings" class="time-form">
         <div class="form-group">
             <label for="open-time">Čas otevření:</label>
-            <input type="time" id="open-time" name="open-time" value="{{ open_time }}">
+            <input type="time" id="open-time" name="open-time" value="{{ open_time }}" {{ 'disabled' if name != 'admin' }}>
         </div>
         <div class="form-group">
             <label for="close-time">Čas zavření:</label>
-            <input type="time" id="close-time" name="close-time" value="{{ close_time }}">
+            <input type="time" id="close-time" name="close-time" value="{{ close_time }}" {{ 'disabled' if name != 'admin' }}>
         </div>
         <div class="submit-button">
-            <button class="btn btn-primary" type="submit">Nastavit Časy</button>
-            <a href="/api/delete_time/" class="btn btn-warning delete-task" role="button" aria-pressed="true">Smazat Časy</a>
+            <button class="btn btn-primary" type="submit"{{ 'disabled' if name != 'admin' }}>Nastavit Časy</button>
+            <a href="/api/delete_time/" class="btn btn-warning delete-task {{ 'disabled' if name != 'admin' }}" role="button" aria-pressed="true">Smazat Časy</a>
         </div>
         <div class="ovladani">
-            <a href="/api/otevri/" class="btn btn-success" role="button" aria-pressed="true">Otevři hned</a>
-            <a href="/api/zavri/" class="btn btn-danger" role="button" aria-pressed="true">Zavři hned</a>
+            <a href="/api/otevri/" class="btn btn-success {{ 'disabled' if name != 'admin' }}" role="button" aria-pressed="true">Otevři hned</a>
+            <a href="/api/zavri/" class="btn btn-danger {{ 'disabled' if name != 'admin' }}" role="button" aria-pressed="true">Zavři hned</a>
             
         </div>
     </form>
@@ -234,6 +234,33 @@
 <div id="graph2">
 <canvas id="lineChart" width="900" height="400"></canvas>
 </div>
+<!-- tlacitko na pocet zobrazeni -->
+<div class="card mx-5 mt-2">
+    <div class="card-body">
+        <form id="add-pocet-vypis">
+            <div class="mb-3">
+                <input type="number" class="form-control" id="pocet_vypis" placeholder="Pocet zobrazeni = 1000 pro týden (1 hodnota za 10min)">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Načíst</button>
+        </form>
+    </div>
+  </div>
+  <!-- tlacitko na mazani -->
+  <div class="card mx-5 mt-2">
+    <div class="card-body">
+        <form id="add-mazani">
+            <div class="mb-3">
+                <input type="number" class="form-control" id="mazani" placeholder="Smazání posledních hodnot">
+            </div>
+            
+            <button type="submit" class="btn btn-primary {{ 'disabled' if name != 'admin' }}">Smazat</button>
+        </form>
+    </div>
+  </div>
+
+
+
 <!-- VSECHNY HODNOTA --> 
 <div class="card mx-5 mt-2">
   <div class="card-body">
@@ -251,30 +278,7 @@
   </div>
 </div>
 
-<!-- tlacitko na pocet zobrazeni -->
-<div class="card mx-5 mt-2">
-  <div class="card-body">
-      <form id="add-pocet-vypis">
-          <div class="mb-3">
-              <input type="number" class="form-control" id="pocet_vypis" placeholder="Pocet zobrazeni">
-          </div>
-          
-          <button type="submit" class="btn btn-primary">Načíst</button>
-      </form>
-  </div>
-</div>
-<!-- tlacitko na mazani -->
-<div class="card mx-5 mt-2">
-  <div class="card-body">
-      <form id="add-mazani">
-          <div class="mb-3">
-              <input type="number" class="form-control" id="mazani" placeholder="Smazání posledních hodnot">
-          </div>
-          
-          <button type="submit" class="btn btn-primary">Smazat</button>
-      </form>
-  </div>
-</div>
+
 
 
 {% endblock%}

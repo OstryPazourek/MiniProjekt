@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS data (
 """
 cursor.execute(createQuery)
 name = "Anonymous"
-Gpocet_vypis = 2
+Gpocet_vypis = 1000
 open = None
 close = None
 
