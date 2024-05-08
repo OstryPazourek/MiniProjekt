@@ -144,7 +144,7 @@ def home():
         poradi = 0
         #Gpocet_vypis=1
         changeVypis(1)
-    print(Gpocet_vypis)
+    
     open_time=get_time_open()
     close_time=get_time_close()
     print(open_time)
