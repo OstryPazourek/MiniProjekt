@@ -21,7 +21,3 @@ def closedoor():
     board.step(direction,step,speed)
     led.off()
     print("Zaviram")
-
-
-opendoor()
-closedoor()
