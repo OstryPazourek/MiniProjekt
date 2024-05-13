@@ -16,15 +16,16 @@ def blink():
     
 
 def Conncect():
-
+    
     wlan = network.WLAN(network.STA_IF)
     if wlan.isconnected():
+        print("AllreadyConnect")
         return
     
     wlan.active(True)
 
-    ssid = "Vodafone-ACAE"
-    password = "Qt6hdjh5wceA6rsw"
+    ssid = "Zyxel_24"
+    password = "4U4D8MEX7R"
 
     wlan.connect(ssid, password)
     Waiting = 0
@@ -34,9 +35,9 @@ def Conncect():
         
         sleep(1)
         Waiting = Waiting+1
-        if Waiting >= 6:
+        if Waiting >= 12:
             print("moc dlouho cekam na pripojení")
-            wdt = WDT(timeout = 1000)
+            #wdt = WDT(timeout = 1000)
 
     print(wlan.ifconfig())
     return True

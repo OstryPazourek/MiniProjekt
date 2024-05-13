@@ -17,7 +17,7 @@ for _ in range(3):  # Blikne 10x při startu
     
 import WifiConn
 from simple import MQTTClient
-import temData
+
 
     
 WifiConn.Conncect()
@@ -49,7 +49,7 @@ def TimerEvent(t):
     try:
         client.publish(
         "KURNIK/DHT11",
-        temData.GetData()
+        "ahoj_tady_pico2"
         )
         led.on()
         time.sleep(0.1)
@@ -60,7 +60,8 @@ def TimerEvent(t):
         client.connect()
         
 Timer(mode=Timer.ONE_SHOT, period=1, callback=TimerEvent)
-Timer(mode=Timer.PERIODIC, period=60000, callback=TimerEvent)#60000 = 10min
+Timer(mode=Timer.PERIODIC, period=6000, callback=TimerEvent)
+
 while True:
     client.check_msg()
     time.sleep(1)  # Krátká pauza pro stabilizaci smyčky
