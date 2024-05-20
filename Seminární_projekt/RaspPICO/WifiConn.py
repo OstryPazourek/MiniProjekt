@@ -24,7 +24,7 @@ def Conncect():
     wlan.active(True)
 
     ssid = "Vodafone-ACAE"
-    password = "Qt6hdjh5wceA6rsw"
+    password = "heslo123" 
 
     wlan.connect(ssid, password)
     Waiting = 0
