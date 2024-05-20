@@ -16,4 +16,4 @@ def GetData():
     print(json.dumps(D))
     return json.dumps(D)
 
-#print(GetData())
+print(GetData())
