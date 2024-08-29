@@ -23,7 +23,6 @@ import serial
 import sys
 import paho.mqtt.publish as publish
 import asyncio
-import datetime
 server = "test.mosquitto.org"
 def otevri():
     print("Čas se shoduje, funkce otevri() byla zavolána.")
